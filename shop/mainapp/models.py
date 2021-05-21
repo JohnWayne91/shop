@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 
 User = get_user_model()
@@ -15,6 +16,10 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+
+    class Meta:
+        abstract = True
+
     category = models.ForeignKey(Category, verbose_name='category', on_delete=models.CASCADE)
     title = models.CharField(max_length=255, verbose_name='Product name')
     slug = models.SlugField(unique=True)
@@ -29,7 +34,9 @@ class Product(models.Model):
 class CartProduct(models.Model):
     user = models.ForeignKey('Customer', verbose_name='Customer', on_delete=models.CASCADE)
     cart = models.ForeignKey('Cart', verbose_name='cart product', on_delete=models.CASCADE, related_name='related_products')
-    product = models.ForeignKey(Product, verbose_name='Product', on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey()
     amount = models.PositiveIntegerField(default=1)
     total_price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Total_price')
 
@@ -56,9 +63,5 @@ class Customer(models.Model):
         return f'Customer: {self.user.first_name} {self.user.last_name}'
 
 
-class Specification(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    name = models.CharField(max_length=255, verbose_name='Product name for specifications')
 
 
