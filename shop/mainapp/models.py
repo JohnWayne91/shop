@@ -1,7 +1,9 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from PIL import Image
 
 
 User = get_user_model()
@@ -40,6 +42,9 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    MIN_RESOLUTION = (400, 400)
+    MAX_RESOLUTION = (2000, 2000)
+    MAX_IMAGE_SIZE = 314
 
     class Meta:
         abstract = True
@@ -53,6 +58,19 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        image = self.image
+        img = Image.open(image)
+        min_height, min_width = self.MIN_RESOLUTION
+        max_height, max_width = self.MAX_RESOLUTION
+        if image.size > self.MAX_IMAGE_SIZE:
+            raise ValidationError('The size of the uploaded image is more than 3 MB')
+        if img.height < min_height or img.width < min_width:
+            raise ValidationError('The resolution of the uploaded image is less than the minimum allowed')
+        if img.height > max_height or img.width > max_width:
+            raise ValidationError('The resolution of the uploaded image is more than the maximum allowed')
+        return image
 
 
 class CartProduct(models.Model):
