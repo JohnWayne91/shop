@@ -9,3 +9,4 @@ shop/shop/__pycache__/urls.cpython-39.pyc
 pycache
 /media/
 !/media/.gitkeep
+*/__pycache__/
