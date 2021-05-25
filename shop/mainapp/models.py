@@ -73,14 +73,15 @@ class Product(models.Model):
             raise ValidationError('The size of the uploaded image is more than 3 MB')
         if img.height < min_height or img.width < min_width:
             raise ValidationError('The resolution of the uploaded image is less than the minimum allowed')
-        new_img = img.convert('RGB')
-        resized_new_image = new_img.resize((800, 800), Image.ANTIALIAS)
-        filestream = BytesIO()
-        resized_new_image.save(filestream, 'JPEG', quality=90)
-        filestream.seek(0)
-        self.image = InMemoryUploadedFile(
-            filestream, 'ImageField', self.image.name, 'jpeg/image', sys.getsizeof(filestream), None
-        )
+        if img.height > max_height or img.width > max_width:
+            new_img = img.convert('RGB')
+            resized_new_image = new_img.resize((800, 800), Image.ANTIALIAS)
+            filestream = BytesIO()
+            resized_new_image.save(filestream, 'JPEG', quality=90)
+            filestream.seek(0)
+            self.image = InMemoryUploadedFile(
+                filestream, 'ImageField', self.image.name, 'jpeg/image', sys.getsizeof(filestream), None
+            )
         super().save(*args, **kwargs)
 
 
