@@ -7,6 +7,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.urls import reverse
 
 from PIL import Image
 
@@ -63,6 +64,10 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        ct_model = self.__class__.meta.model_name
+        return reverse('product_detail', kwargs={'ct_model': ct_model, 'slug': self.slug})
 
     def save(self, *args, **kwargs):
         image = self.image
