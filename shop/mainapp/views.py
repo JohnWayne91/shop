@@ -19,8 +19,6 @@ class ProductDetailView(DetailView):
     slug_url_kwarg = 'slug'
 
 
-
-
 def test_view(request):
     return render(request, 'base.html', {})
 
