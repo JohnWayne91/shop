@@ -1,8 +1,13 @@
+import sys
+from io import BytesIO
+
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+
 from PIL import Image
 
 
@@ -43,8 +48,8 @@ class Category(models.Model):
 
 class Product(models.Model):
     MIN_RESOLUTION = (400, 400)
-    MAX_RESOLUTION = (2000, 2000)
-    MAX_IMAGE_SIZE = 314
+    MAX_RESOLUTION = (1000, 1000)
+    MAX_IMAGE_SIZE = 3145728
 
     class Meta:
         abstract = True
@@ -68,9 +73,15 @@ class Product(models.Model):
             raise ValidationError('The size of the uploaded image is more than 3 MB')
         if img.height < min_height or img.width < min_width:
             raise ValidationError('The resolution of the uploaded image is less than the minimum allowed')
-        if img.height > max_height or img.width > max_width:
-            raise ValidationError('The resolution of the uploaded image is more than the maximum allowed')
-        return image
+        new_img = img.convert('RGB')
+        resized_new_image = new_img.resize((800, 800), Image.ANTIALIAS)
+        filestream = BytesIO()
+        resized_new_image.save(filestream, 'JPEG', quality=90)
+        filestream.seek(0)
+        self.image = InMemoryUploadedFile(
+            filestream, 'ImageField', self.image.name, 'jpeg/image', sys.getsizeof(filestream), None
+        )
+        super().save(*args, **kwargs)
 
 
 class CartProduct(models.Model):
