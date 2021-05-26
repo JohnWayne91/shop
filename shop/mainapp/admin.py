@@ -50,7 +50,7 @@ admin.site.register(Category)
 admin.site.register(Notebook, NotebookAdmin)
 admin.site.register(Smartphone, SmartphoneAdmin)
 admin.site.register(CartProduct)
-admin.site.register(Cart)
+admin.site.register(Cart1)
 admin.site.register(Customer)
 
 
