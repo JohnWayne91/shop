@@ -16,11 +16,15 @@
             <h3>{{ product.title }}</h3>
             <p>Price: {{ product.price }} USD</p>
             <p>Description: {{ product.description }}</p>
-            <p>Specification</p>
         </div>
+        <p class="mt-4">Specification</p>
+        {% if product.category.slug == 'notebooks' %}
+        {% include 'notebook_specification.html' %}
+        {% endif %}
+
+        {% if product.category.slug == 'smartphones' %}
+        {% include 'smartphone_specification.html' %}
+        {% endif %}
     </div>
-
-
-{{ product.title }}
-
+ 
 {% endblock content %}
