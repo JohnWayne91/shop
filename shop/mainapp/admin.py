@@ -28,6 +28,7 @@ class ProductAdminForm(ModelForm):
 
 class NotebookAdmin(admin.ModelAdmin):
     form = ProductAdminForm
+    prepopulated_fields = {'slug': ('title',)}
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'category':
@@ -37,6 +38,7 @@ class NotebookAdmin(admin.ModelAdmin):
 
 class SmartphoneAdmin(admin.ModelAdmin):
     form = ProductAdminForm
+    prepopulated_fields = {'slug': ('title',)}
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'category':
