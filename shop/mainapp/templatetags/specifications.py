@@ -34,8 +34,10 @@ PRODUCT_SPEC = {
         'Screen diagonal': 'diagonal',
         'Display type': 'display_type',
         'Resolution': 'resolution',
+        'Battery volume': 'battery_volume',
         'RAM': 'ram',
         'Sd': 'sd',
+        'Maximum memory capacity': 'sd_memory_max',
         'Main camera': 'main_cam_mp',
         'Front camera': 'front_cam_mp'
     }
