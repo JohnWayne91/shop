@@ -47,6 +47,8 @@ PRODUCT_SPEC = {
 def get_product_spec(product, model_name):
     table_content = ''
     for name, value in PRODUCT_SPEC[model_name].items():
+        if model_name == 'smartphone' and not product.sd and value == 'sd_memory_max':
+            continue
         table_content += TABLE_CONTENT.format(name=name, value=getattr(product, value))
     return table_content
 
