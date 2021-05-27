@@ -14,6 +14,16 @@ class ProductAdminForm(ModelForm):
             """<span style="color:red; font-size:14px;">If the resolution of the uploaded image is more than {}x{}, 
             it will be cropped</span>""".format(*Product.MAX_RESOLUTION)
         )
+        instance = kwargs.get('instance')
+        if instance and not instance.sd:
+            self.fields['sd_memory_max'].widget.attrs.update({
+                'readonly': True, 'style': 'background: lightgrey'
+            })
+
+    def clean(self):
+        if not self.cleaned_data['sd']:
+            self.cleaned_data['sd_memory_max'] = None
+        return self.cleaned_data
 
     def clean_image(self):
         image = self.cleaned_data['image']
@@ -37,6 +47,7 @@ class NotebookAdmin(admin.ModelAdmin):
 
 
 class SmartphoneAdmin(admin.ModelAdmin):
+    change_form_template = 'admin.html'
     form = ProductAdminForm
     prepopulated_fields = {'slug': ('title',)}
 
