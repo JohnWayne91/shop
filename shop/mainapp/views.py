@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.views.generic import DetailView
 from .models import *
+from .utils import CategoryDetailMixin
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(CategoryDetailMixin, DetailView):
     CT_MODEL_MODEL_CLASS = {
         'notebook': Notebook,
         'smartphone': Smartphone
@@ -19,7 +20,7 @@ class ProductDetailView(DetailView):
     slug_url_kwarg = 'slug'
 
 
-class CategoryDetailView(DetailView):
+class CategoryDetailView(CategoryDetailMixin, DetailView):
     model = Category
     queryset = Category.objects.all()
     context_object_name = 'category'

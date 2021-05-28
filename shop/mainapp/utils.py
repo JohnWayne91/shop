@@ -1,6 +1,7 @@
 from PIL import Image
 from django.forms import ValidationError
-from .models import Product
+from django.views.generic.detail import SingleObjectMixin
+from .models import Product, Category
 
 
 class ImageValidationMixin:
@@ -13,4 +14,12 @@ class ImageValidationMixin:
         if img.height < min_height or img.width < min_width:
             raise ValidationError('The resolution of the uploaded image is less than the minimum allowed')
         return image
+
+
+class CategoryDetailMixin(SingleObjectMixin):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.get_categories_for_left_sidebar()
+        return context
 
