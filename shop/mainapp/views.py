@@ -19,8 +19,19 @@ class ProductDetailView(DetailView):
     slug_url_kwarg = 'slug'
 
 
+class CategoryDetailView(DetailView):
+    model = Category
+    queryset = Category.objects.all()
+    context_object_name = 'category'
+    template_name = 'category_detail.html'
+    slug_url_kwarg = 'slug'
+
+
 def test_view(request):
     categories = (Category.objects.get_categories_for_left_sidebar())
     return render(request, 'base.html', {'categories': categories})
+
+
+
 
 
