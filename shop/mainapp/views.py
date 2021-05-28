@@ -20,6 +20,7 @@ class ProductDetailView(DetailView):
 
 
 def test_view(request):
-    return render(request, 'base.html', {})
+    categories = (Category.objects.get_categories_for_left_sidebar())
+    return render(request, 'base.html', {'categories': categories})
 
 
