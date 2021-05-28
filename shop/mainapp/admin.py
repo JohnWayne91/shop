@@ -1,12 +1,12 @@
-from django.forms import ModelChoiceField, ModelForm, ValidationError
+from django.forms import ModelChoiceField, ModelForm
 from django.contrib import admin
 from django.utils.safestring import mark_safe
-from PIL import Image
 
 from .models import *
+from .utils import ImageValidationMixin
 
 
-class ProductAdminForm(ModelForm):
+class SmartphoneAdminForm(ModelForm, ImageValidationMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -26,18 +26,24 @@ class ProductAdminForm(ModelForm):
         return self.cleaned_data
 
     def clean_image(self):
-        image = self.cleaned_data['image']
-        img = Image.open(image)
-        min_height, min_width = Product.MIN_RESOLUTION
-        if image.size > Product.MAX_IMAGE_SIZE:
-            raise ValidationError('The size of the uploaded image is more than 3 MB')
-        if img.height < min_height or img.width < min_width:
-            raise ValidationError('The resolution of the uploaded image is less than the minimum allowed')
-        return image
+        return self.validate_image()
+
+
+class NotebookAdminForm(ModelForm, ImageValidationMixin):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['image'].help_text = mark_safe(
+            """<span style="color:red; font-size:14px;">If the resolution of the uploaded image is more than {}x{}, 
+            it will be cropped</span>""".format(*Product.MAX_RESOLUTION)
+        )
+
+    def clean_image(self):
+        return self.validate_image()
 
 
 class NotebookAdmin(admin.ModelAdmin):
-    form = ProductAdminForm
+    form = NotebookAdminForm
     prepopulated_fields = {'slug': ('title',)}
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -48,7 +54,7 @@ class NotebookAdmin(admin.ModelAdmin):
 
 class SmartphoneAdmin(admin.ModelAdmin):
     change_form_template = 'admin.html'
-    form = ProductAdminForm
+    form = SmartphoneAdminForm
     prepopulated_fields = {'slug': ('title',)}
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
