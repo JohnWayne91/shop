@@ -7,7 +7,12 @@ from .utils import CategoryDetailMixin
 class BaseView(View):
     def get(self, request, *args, **kwargs):
         categories = (Category.objects.get_categories_for_left_sidebar())
-        return render(request, 'base.html', {'categories': categories})
+        products = LatestProducts.objects.get_products_for_main_page('notebook', 'smartphone')
+        context = {
+            'categories': categories,
+            'products': products
+        }
+        return render(request, 'base.html', context)
 
 
 class ProductDetailView(CategoryDetailMixin, DetailView):

@@ -93,7 +93,7 @@ class Product(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        ct_model = self.__class__.meta.model_name
+        ct_model = self.__class__._meta.model_name
         return reverse('product_detail', kwargs={'ct_model': ct_model, 'slug': self.slug})
 
     def save(self, *args, **kwargs):
