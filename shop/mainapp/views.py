@@ -1,7 +1,13 @@
 from django.shortcuts import render
-from django.views.generic import DetailView
+from django.views.generic import DetailView, View
 from .models import *
 from .utils import CategoryDetailMixin
+
+
+class BaseView(View):
+    def get(self, request, *args, **kwargs):
+        categories = (Category.objects.get_categories_for_left_sidebar())
+        return render(request, 'base.html', {'categories': categories})
 
 
 class ProductDetailView(CategoryDetailMixin, DetailView):
@@ -28,9 +34,7 @@ class CategoryDetailView(CategoryDetailMixin, DetailView):
     slug_url_kwarg = 'slug'
 
 
-def test_view(request):
-    categories = (Category.objects.get_categories_for_left_sidebar())
-    return render(request, 'base.html', {'categories': categories})
+
 
 
 
