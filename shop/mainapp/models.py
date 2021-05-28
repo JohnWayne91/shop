@@ -72,12 +72,7 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         image = self.image
         img = Image.open(image)
-        min_height, min_width = self.MIN_RESOLUTION
         max_height, max_width = self.MAX_RESOLUTION
-        if image.size > self.MAX_IMAGE_SIZE:
-            raise ValidationError('The size of the uploaded image is more than 3 MB')
-        if img.height < min_height or img.width < min_width:
-            raise ValidationError('The resolution of the uploaded image is less than the minimum allowed')
         if img.height > max_height or img.width > max_width:
             new_img = img.convert('RGB')
             resized_new_image = new_img.resize((800, 800), Image.ANTIALIAS)

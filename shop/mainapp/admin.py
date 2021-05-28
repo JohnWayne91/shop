@@ -11,7 +11,7 @@ class ProductAdminForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['image'].help_text = mark_safe(
-            """<span style="color:red; font-size:14px;">If the resolution of the uploaded image is more than {}x{}, 
+            """<span style="color:red; font-size:14px;">If resolution of the uploaded image is more than {}x{}, 
             it will be cropped</span>""".format(*Product.MAX_RESOLUTION)
         )
         instance = kwargs.get('instance')
