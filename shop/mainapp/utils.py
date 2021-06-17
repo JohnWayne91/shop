@@ -1,7 +1,7 @@
 from PIL import Image
 from django.forms import ValidationError
 from django.views.generic.detail import SingleObjectMixin
-from .models import Product, Category
+from .models import Product, Category, Customer, Cart1
 
 
 class ImageValidationMixin:
@@ -16,10 +16,22 @@ class ImageValidationMixin:
         return image
 
 
-class CategoryDetailMixin(SingleObjectMixin):
+class GetCustomerCartMixin:
+    def get_cart(self):
+        customer = Customer.objects.get(user=self.request.user)
+        cart = Cart1.objects.get(owner=customer, in_order=False)
+        return cart
+
+
+class CategoryDetailMixin(SingleObjectMixin, GetCustomerCartMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.get_categories_for_left_sidebar()
+        cart = self.get_cart()
+        context['cart'] = cart
         return context
+
+
+
 

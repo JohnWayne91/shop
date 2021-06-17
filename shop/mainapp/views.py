@@ -1,23 +1,22 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.views.generic import DetailView, View
+from django.views.generic import DetailView, View, ListView
 from .models import *
-from .utils import CategoryDetailMixin
+from .utils import CategoryDetailMixin, GetCustomerCartMixin
 
 
-class BaseView(View):
+class BaseView(GetCustomerCartMixin, View):
     def get(self, request, *args, **kwargs):
-        categories = (Category.objects.get_categories_for_left_sidebar())
+        categories = Category.objects.get_categories_for_left_sidebar()
         products = LatestProducts.objects.get_products_for_main_page('notebook', 'smartphone')
-        customer = Customer.objects.get(user=request.user)
-        cart = Cart1.objects.get(owner=customer)
+        cart = self.get_cart()
         context = {
             'categories': categories,
             'products': products,
             'cart': cart
         }
         return render(request, 'base.html', context)
-ad
+
 
 class ProductDetailView(CategoryDetailMixin, DetailView):
     CT_MODEL_MODEL_CLASS = {
@@ -48,11 +47,10 @@ class CategoryDetailView(CategoryDetailMixin, DetailView):
     slug_url_kwarg = 'slug'
 
 
-class AddToCartView(View):
+class AddToCartView(GetCustomerCartMixin, View):
     def get(self, request, *args, **kwargs):
         ct_model, product_slug = kwargs.get('ct_model'), kwargs.get('slug')
-        customer = Customer.objects.get(user=request.user)
-        cart = Cart1.objects.get(owner=customer, in_order=False)
+        cart = self.get_cart()
         content_type = ContentType.objects.get(model=ct_model)
         product = content_type.model_class().objects.get(slug=product_slug)
         cart_product, created = CartProduct.objects.get_or_create(
@@ -62,17 +60,15 @@ class AddToCartView(View):
         return HttpResponseRedirect('/cart/')
 
 
-class CartView(View):
+class CartView(GetCustomerCartMixin, View):
     def get(self, request, *args, **kwargs):
-        customer = Customer.objects.get(user=request.user)
-        cart = Cart1.objects.get(owner=customer)
         categories = Category.objects.get_categories_for_left_sidebar()
+        cart = self.get_cart()
         context = {
             'categories': categories,
             'cart': cart
         }
         return render(request, 'cart.html', context)
-
 
 
 
