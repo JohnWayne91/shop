@@ -124,12 +124,16 @@ class CartProduct(models.Model):
     def __str__(self):
         return f'Product: {self.content_object.title} (for the cart)'
 
+    def save(self, *args, **kwargs):
+        self.total_price = self.amount * self.content_object.price
+        super().save(*args, **kwargs)
+
 
 class Cart1(models.Model):
-    owner = models.ForeignKey('Customer', verbose_name='owner of the cart', on_delete=models.CASCADE)
+    owner = models.ForeignKey('Customer', null=True, verbose_name='owner of the cart', on_delete=models.CASCADE)
     products = models.ManyToManyField(CartProduct, blank=True, related_name='related_cart')
     products_amount = models.PositiveIntegerField(default=0)
-    total_price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Total_price')
+    total_price = models.DecimalField(max_digits=9, default=0, decimal_places=2, verbose_name='Total_price')
     in_order = models.BooleanField(default=False)
     for_anonymous_user = models.BooleanField(default=False)
 
@@ -139,8 +143,8 @@ class Cart1(models.Model):
 
 class Customer(models.Model):
     user = models.ForeignKey(User, verbose_name='Customer', on_delete=models.CASCADE)
-    phone = models.CharField(max_length=20, verbose_name='Phone number')
-    address = models.CharField(max_length=255, verbose_name='Address')
+    phone = models.CharField(max_length=20, verbose_name='Phone number', null=True, blank=True)
+    address = models.CharField(max_length=255, verbose_name='Address', null=True, blank=True)
 
     def __str__(self):
         return f'Customer: {self.user.first_name} {self.user.last_name}'

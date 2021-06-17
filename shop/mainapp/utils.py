@@ -1,5 +1,6 @@
 from PIL import Image
 from django.forms import ValidationError
+from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
 from .models import Product, Category, Customer, Cart1
 
@@ -16,20 +17,28 @@ class ImageValidationMixin:
         return image
 
 
-class GetCustomerCartMixin:
-    def get_cart(self):
-        customer = Customer.objects.get(user=self.request.user)
-        cart = Cart1.objects.get(owner=customer, in_order=False)
-        return cart
+class CartMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            customer = Customer.objects.filter(user=request.user).first()
+            if not customer:
+                customer = Customer.objects.create(user=request.user)
+            cart = Cart1.objects.filter(owner=customer, in_order=False).first()
+            if not cart:
+                cart = Cart1.objects.create(owner=customer)
+        else:
+            cart = Cart1.objects.filter(for_anonymous_user=True).first()
+            if not cart:
+                cart = Cart1.objects.create(for_anonymous_user=True)
+        self.cart = cart
+        return super().dispatch(request, *args, **kwargs)
 
 
-class CategoryDetailMixin(SingleObjectMixin, GetCustomerCartMixin):
+class CategoryDetailMixin(SingleObjectMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.get_categories_for_left_sidebar()
-        cart = self.get_cart()
-        context['cart'] = cart
         return context
 
 
