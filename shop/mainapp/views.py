@@ -17,7 +17,7 @@ class BaseView(View):
             'cart': cart
         }
         return render(request, 'base.html', context)
-
+ad
 
 class ProductDetailView(CategoryDetailMixin, DetailView):
     CT_MODEL_MODEL_CLASS = {
