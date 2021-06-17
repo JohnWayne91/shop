@@ -39,6 +39,18 @@ class CategoryDetailView(CategoryDetailMixin, DetailView):
     slug_url_kwarg = 'slug'
 
 
+class CartView(View):
+    def get(self, request, *args, **kwargs):
+        customer = Customer.objects.get(user=request.user)
+        cart = Cart1.objects.get(owner=customer)
+        categories = Category.objects.get_categories_for_left_sidebar()
+        context = {
+            'categories': categories,
+            'cart': cart
+        }
+        return render(request, 'cart.html', context)
+
+
 
 
 
