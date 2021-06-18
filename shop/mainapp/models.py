@@ -11,7 +11,6 @@ from django.urls import reverse
 
 from PIL import Image
 
-
 User = get_user_model()
 
 
@@ -96,6 +95,9 @@ class Product(models.Model):
         ct_model = self.__class__._meta.model_name
         return reverse('product_detail', kwargs={'ct_model': ct_model, 'slug': self.slug})
 
+    def get_model_name(self):
+        return self.__class__.__name__.lower()
+
     def save(self, *args, **kwargs):
         image = self.image
         img = Image.open(image)
@@ -114,7 +116,8 @@ class Product(models.Model):
 
 class CartProduct(models.Model):
     user = models.ForeignKey('Customer', verbose_name='Customer', on_delete=models.CASCADE)
-    cart = models.ForeignKey('Cart1', verbose_name='cart product', on_delete=models.CASCADE, related_name='related_products')
+    cart = models.ForeignKey('Cart1', verbose_name='cart product', on_delete=models.CASCADE,
+                             related_name='related_products')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
@@ -139,6 +142,18 @@ class Cart1(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+    def save(self, *args, **kwargs):
+        try:
+            cart_data = self.products.aggregate(models.Sum('total_price'), models.Count('id'))
+            if cart_data.get('total_price__sum'):
+                self.total_price = cart_data['total_price__sum']
+            else:
+                self.total_price = 0
+            self.products_amount = cart_data['id__count']
+        except:
+            pass
+        super().save(*args, **kwargs)
 
 
 class Customer(models.Model):
@@ -175,4 +190,3 @@ class Smartphone(Product):
 
     def __str__(self):
         return f'{self.category.name} : {self.title}'
-
