@@ -2,7 +2,7 @@ from PIL import Image
 from django.forms import ValidationError
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
-from .models import Product, Category, Customer, Cart1
+from .models import Product, Category, Customer, Cart1, Notebook, Smartphone
 
 
 class ImageValidationMixin:
@@ -36,10 +36,23 @@ class CartMixin(View):
 
 class CategoryDetailMixin(SingleObjectMixin):
 
+    CATEGORY_SLUG_TO_MODEL = {
+        'notebooks': Notebook,
+        'smartphones': Smartphone
+    }
+
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.get_categories_for_left_sidebar()
-        return context
+        if isinstance(self.get_object(), Category):
+            model = self.CATEGORY_SLUG_TO_MODEL[self.get_object().slug]
+            context = super().get_context_data(**kwargs)
+            context['categories'] = Category.objects.get_categories_for_left_sidebar()
+            context['category_products'] = model.objects.all()
+            return context
+        else:
+            context = super().get_context_data(**kwargs)
+            context['categories'] = Category.objects.get_categories_for_left_sidebar()
+            return context
+
 
 
 
