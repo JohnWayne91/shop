@@ -1,15 +1,14 @@
 import sys
 from io import BytesIO
+from PIL import Image
 
-from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.urls import reverse
-
-from PIL import Image
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -160,6 +159,7 @@ class Customer(models.Model):
     user = models.ForeignKey(User, verbose_name='Customer', on_delete=models.CASCADE)
     phone = models.CharField(max_length=20, verbose_name='Phone number', null=True, blank=True)
     address = models.CharField(max_length=255, verbose_name='Address', null=True, blank=True)
+    orders = models.ManyToManyField('Order', related_name='related_customer', verbose_name="Customer's orders")
 
     def __str__(self):
         return f'Customer: {self.user.first_name} {self.user.last_name}'
@@ -190,3 +190,46 @@ class Smartphone(Product):
 
     def __str__(self):
         return f'{self.category.name} : {self.title}'
+
+
+class Order(models.Model):
+
+    STATUS_NEW = 'new'
+    STATUS_IN_PROGRESS = 'in_progress'
+    STATUS_READY = 'is_ready'
+    STATUS_COMPLETED = 'completed'
+
+    BUYING_TYPE_SELF = 'self'
+    BUYING_TYPE_DELIVERY = 'delivery'
+
+    STATUS_CHOICES = (
+        (STATUS_NEW, 'New order'),
+        (STATUS_IN_PROGRESS, 'Order in progress'),
+        (STATUS_READY, 'Order is ready'),
+        (STATUS_COMPLETED, 'Order is completed')
+    )
+
+    BUYING_TYPE_CHOICES = (
+        (BUYING_TYPE_SELF, 'Pickup'),
+        (BUYING_TYPE_DELIVERY, 'Delivery')
+    )
+
+    customer = models.ForeignKey(
+        Customer, verbose_name='Customer', related_name='related_orders', on_delete=models.CASCADE
+    )
+    first_name = models.CharField(max_length=255, verbose_name='First name')
+    last_name = models.CharField(max_length=255, verbose_name='Last name')
+    phone = models.CharField(max_length=20, verbose_name='Phone number')
+    address = models.CharField(max_length=500, verbose_name='Address', null=True, blank=True)
+    status = models.CharField(max_length=100, verbose_name='Order status', choices=STATUS_CHOICES, default=STATUS_NEW)
+    buying_type = models.CharField(
+        max_length=100, verbose_name='Order type', choices=BUYING_TYPE_CHOICES, default=BUYING_TYPE_SELF
+    )
+    comment = models.TextField(verbose_name='Comment to order', null=True, blank=True)
+    order_creation_date = models.DateTimeField(auto_now=True, verbose_name='Order creation date')
+    order_completion_date = models.DateField(verbose_name='Order_completion_date', default=timezone.now)
+
+    def __str__(self):
+        return str(self.id)
+
+
