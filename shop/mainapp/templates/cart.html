@@ -47,6 +47,7 @@
             <td>Total:</td>
             <td>{{ cart.products_amount }}</td>
             <td><strong>{{ cart.total_price }} USD</strong></td>
+            <td><a href="{% url 'checkout' %}"><button class="btn btn-primary">Go to order</button></a></td>
         </tr>
     </tbody>
 </table>
