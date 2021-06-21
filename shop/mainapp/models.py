@@ -220,6 +220,7 @@ class Order(models.Model):
     first_name = models.CharField(max_length=255, verbose_name='First name')
     last_name = models.CharField(max_length=255, verbose_name='Last name')
     phone = models.CharField(max_length=20, verbose_name='Phone number')
+    cart = models.ForeignKey(Cart1, verbose_name='Cart', on_delete=models.CASCADE, null=True, blank=True)
     address = models.CharField(max_length=500, verbose_name='Address', null=True, blank=True)
     status = models.CharField(max_length=100, verbose_name='Order status', choices=STATUS_CHOICES, default=STATUS_NEW)
     buying_type = models.CharField(
