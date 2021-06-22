@@ -1,8 +1,9 @@
 from PIL import Image
+from django.contrib.contenttypes.models import ContentType
 from django.forms import ValidationError
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
-from .models import Product, Category, Customer, Cart1, Notebook, Smartphone
+from .models import Product, Category, Customer, Cart1, Notebook, Smartphone, CartProduct
 
 
 class ImageValidationMixin:
@@ -54,6 +55,13 @@ class CategoryDetailMixin(SingleObjectMixin):
             return context
 
 
-
-
+class GetCartProductMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        ct_model, product_slug = kwargs.get('ct_model'), kwargs.get('slug')
+        content_type = ContentType.objects.get(model=ct_model)
+        product = content_type.model_class().objects.get(slug=product_slug)
+        self.cart_product = CartProduct.objects.get(
+            user=self.cart.owner, cart=self.cart, content_type=content_type, object_id=product.id
+        )
+        return super().dispatch(request, *args, **kwargs)
 

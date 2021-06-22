@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.contrib import messages
 from django.views.generic import DetailView, View, CreateView
 from .models import *
-from .utils import CategoryDetailMixin, CartMixin
+from .utils import CategoryDetailMixin, CartMixin, GetCartProductMixin
 from .forms import OrderForm
 
 
@@ -70,15 +70,10 @@ class AddToCartView(CartMixin, View):
         return HttpResponseRedirect('/cart/')
 
 
-class DeleteFromCartView(CartMixin, View):
+class DeleteFromCartView(CartMixin, GetCartProductMixin, View):
 
     def get(self, request, *args, **kwargs):
-        ct_model, product_slug = kwargs.get('ct_model'), kwargs.get('slug')
-        content_type = ContentType.objects.get(model=ct_model)
-        product = content_type.model_class().objects.get(slug=product_slug)
-        cart_product = CartProduct.objects.get(
-            user=self.cart.owner, cart=self.cart, content_type=content_type, object_id=product.id
-        )
+        cart_product = self.cart_product
         self.cart.products.remove(cart_product)
         cart_product.delete()
         self.cart.save()
@@ -86,14 +81,9 @@ class DeleteFromCartView(CartMixin, View):
         return HttpResponseRedirect('/cart/')
 
 
-class ChangeProductAmountView(CartMixin, View):
+class ChangeProductAmountView(CartMixin, GetCartProductMixin, View):
     def post(self, request, *args, **kwargs):
-        ct_model, product_slug = kwargs.get('ct_model'), kwargs.get('slug')
-        content_type = ContentType.objects.get(model=ct_model)
-        product = content_type.model_class().objects.get(slug=product_slug)
-        cart_product = CartProduct.objects.get(
-            user=self.cart.owner, cart=self.cart, content_type=content_type, object_id=product.id
-        )
+        cart_product = self.cart_product
         amount = int(request.POST.get('amount'))
         cart_product.amount = amount
         cart_product.save()
