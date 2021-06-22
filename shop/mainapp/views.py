@@ -4,8 +4,9 @@ from django.shortcuts import render
 from django.contrib import messages
 from django.views.generic import DetailView, View, CreateView
 from .models import *
-from .utils import CategoryDetailMixin, CartMixin, GetCartProductMixin
+from .mixins import CategoryDetailMixin, CartMixin, GetCartProductMixin
 from .forms import OrderForm
+from .utils import recalculate_cart
 
 
 class BaseView(CartMixin, View):
@@ -65,7 +66,7 @@ class AddToCartView(CartMixin, View):
         )
         if created:
             self.cart.products.add(cart_product)
-        self.cart.save()
+        recalculate_cart(self.cart)
         messages.add_message(request, messages.INFO, 'Product added successfully')
         return HttpResponseRedirect('/cart/')
 
@@ -76,7 +77,7 @@ class DeleteFromCartView(CartMixin, GetCartProductMixin, View):
         cart_product = self.cart_product
         self.cart.products.remove(cart_product)
         cart_product.delete()
-        self.cart.save()
+        recalculate_cart(self.cart)
         messages.add_message(request, messages.INFO, 'Product deleted successfully')
         return HttpResponseRedirect('/cart/')
 
@@ -87,7 +88,7 @@ class ChangeProductAmountView(CartMixin, GetCartProductMixin, View):
         amount = int(request.POST.get('amount'))
         cart_product.amount = amount
         cart_product.save()
-        self.cart.save()
+        recalculate_cart(self.cart)
         messages.add_message(request, messages.INFO, 'Product amount changed successfully')
         return HttpResponseRedirect('/cart/')
 

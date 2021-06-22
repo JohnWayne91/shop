@@ -10,6 +10,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.urls import reverse
 from django.utils import timezone
 
+
 User = get_user_model()
 
 
@@ -83,7 +84,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, verbose_name='category', on_delete=models.CASCADE)
     title = models.CharField(max_length=255, verbose_name='Product name')
     slug = models.SlugField(unique=True)
-    image = models.ImageField(verbose_name='image')
+    image = models.ImageField(verbose_name='image', null=True)
     description = models.TextField(verbose_name='description', null=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='price')
 
@@ -142,17 +143,17 @@ class Cart1(models.Model):
     def __str__(self):
         return str(self.id)
 
-    def save(self, *args, **kwargs):
-        try:
-            cart_data = self.products.aggregate(models.Sum('total_price'), models.Count('id'))
-            if cart_data.get('total_price__sum'):
-                self.total_price = cart_data['total_price__sum']
-            else:
-                self.total_price = 0
-            self.products_amount = cart_data['id__count']
-        except:
-            pass
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     try:
+    #         cart_data = self.products.aggregate(models.Sum('total_price'), models.Count('id'))
+    #         if cart_data.get('total_price__sum'):
+    #             self.total_price = cart_data['total_price__sum']
+    #         else:
+    #             self.total_price = 0
+    #         self.products_amount = cart_data['id__count']
+    #     except:
+    #         pass
+    #     super().save(*args, **kwargs)
 
 
 class Customer(models.Model):
