@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.contrib import messages
 from django.views.generic import DetailView, View, CreateView
+
 from .models import *
 from .mixins import CategoryDetailMixin, CartMixin, GetCartProductMixin
 from .forms import OrderForm

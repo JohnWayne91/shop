@@ -1,12 +1,13 @@
 from decimal import Decimal
-from PIL import Image
+from unittest import mock
 
-from django.test import TestCase
+from django.contrib.messages.storage.fallback import FallbackStorage
+from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 from .models import Category, Notebook, Customer, Cart1, CartProduct
 from .utils import recalculate_cart
+from .views import AddToCartView, BaseView
 
 User = get_user_model()
 
@@ -43,6 +44,27 @@ class ShopTestCases(TestCase):
         self.assertIn(self.cart_product, self.cart.products.all())
         self.assertEqual(self.cart.products.count(), 1)
         self.assertEqual(self.cart.total_price, Decimal('50000.00'))
+
+    def test_response_from_add_to_cart_view(self):
+        factory = RequestFactory()
+        request = factory.get('')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+        request.user = self.user
+        response = AddToCartView.as_view()(request, ct_model='notebook', slug='test-slug')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/cart/')
+
+    def test_mock_homepage(self):
+        mock_data = mock.Mock(status_code=444)
+        with mock.patch('mainapp.views.BaseView.get', return_value=mock_data) as mock_data_:
+            factory = RequestFactory()
+            request = factory.get('')
+            request.user = self.user
+            response = BaseView.as_view()(request)
+            self.assertEqual(response.status_code, 444)
+
 
 
 
