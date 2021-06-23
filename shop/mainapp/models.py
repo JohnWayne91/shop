@@ -10,6 +10,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.urls import reverse
 from django.utils import timezone
 
+from .utils import resize_image
+
 
 User = get_user_model()
 
@@ -99,18 +101,7 @@ class Product(models.Model):
         return self.__class__.__name__.lower()
 
     def save(self, *args, **kwargs):
-        image = self.image
-        img = Image.open(image)
-        max_height, max_width = self.MAX_RESOLUTION
-        if img.height > max_height or img.width > max_width:
-            new_img = img.convert('RGB')
-            resized_new_image = new_img.resize((800, 800), Image.ANTIALIAS)
-            filestream = BytesIO()
-            resized_new_image.save(filestream, 'JPEG', quality=90)
-            filestream.seek(0)
-            self.image = InMemoryUploadedFile(
-                filestream, 'ImageField', self.image.name, 'jpeg/image', sys.getsizeof(filestream), None
-            )
+        resize_image(self, *args, **kwargs)
         super().save(*args, **kwargs)
 
 

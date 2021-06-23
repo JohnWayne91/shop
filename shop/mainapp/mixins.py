@@ -1,8 +1,10 @@
 from PIL import Image
+
 from django.contrib.contenttypes.models import ContentType
 from django.forms import ValidationError
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
+
 from .models import Product, Category, Customer, Cart1, Notebook, Smartphone, CartProduct
 
 
