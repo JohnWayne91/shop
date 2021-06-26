@@ -1,8 +1,10 @@
+import stripe
+
 from django.db import transaction
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.contrib import messages
-from django.views.generic import DetailView, View, CreateView
+from django.views.generic import DetailView, View
 
 from .models import *
 from .mixins import CategoryDetailMixin, CartMixin, GetCartProductMixin
@@ -106,12 +108,21 @@ class CartView(CartMixin, View):
 
 class CheckoutView(CartMixin, View):
     def get(self, request, *args, **kwargs):
+        stripe.api_key = "sk_test_51J5qylB2DXIlYuJKR86lqr5k2sRhIgION88pWjV0Wtbb7AnoV7jOHqUoXf4WKR9IZa9I7dy2Wkx0ZAFXY9w6rekm00DaZJ6Zp5"
+
+        intent = stripe.PaymentIntent.create(
+            amount=int(self.cart.total_price * 100),
+            currency='usd',
+            # Verify your integration in this guide by including this parameter
+            metadata={'integration_check': 'accept_a_payment'},
+        )
         categories = Category.objects.get_categories_for_left_sidebar()
         form = OrderForm(request.POST or None)
         context = {
             'categories': categories,
             'cart': self.cart,
-            'form': form
+            'form': form,
+            'client_secret': intent.client_secret
         }
         return render(request, 'checkout.html', context)
 
@@ -129,16 +140,34 @@ class MakeOrderView(CartView, View):
             new_order.phone = form.cleaned_data['phone']
             new_order.address = form.cleaned_data['address']
             new_order.buying_type = form.cleaned_data['buying_type']
-            new_order.order_completion_date = form.cleaned_data['order_completion_date']
-            new_order.comment = form.cleaned_data['comment']
             self.cart.in_order = True
             self.cart.save()
             new_order.cart = self.cart
             new_order.save()
             customer.orders.add(new_order)
             messages.add_message(request, messages.INFO, 'New order created successfully, manager will contact you soon')
-            return HttpResponseRedirect('/')
-        return HttpResponseRedirect('/checkout/')
+            return JsonResponse({"status": "payed"})
+
+
+class PayedOnlineOrderView(CartView, View):
+    @transaction.atomic()
+    def post(self, request, *args, **kwargs):
+        customer = Customer.objects.get(user=request.user)
+        new_order = Order()
+        new_order.customer = customer
+        new_order.first_name = customer.user.first_name
+        new_order.last_name = customer.user.last_name
+        new_order.phone = customer.phone
+        new_order.address = customer.address
+        new_order.buying_type = Order.BUYING_TYPE_SELF
+        self.cart.in_order = True
+        self.cart.save()
+        new_order.cart = self.cart
+        new_order.status = Order.STATUS_PAYED
+        new_order.save()
+        customer.orders.add(new_order)
+        return JsonResponse({"status": "payed"})
+
 
 
 

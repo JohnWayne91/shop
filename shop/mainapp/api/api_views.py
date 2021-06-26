@@ -28,7 +28,7 @@ class CategoryListCreateApiView(ListCreateAPIView):
 
     serializer_class = CategorySerializers
     queryset = Category.objects.all()
-    lookup_field = 'id'
+    # lookup_field = 'id'
 
 
 class CategoryDetailApiView(RetrieveAPIView, RetrieveUpdateAPIView):

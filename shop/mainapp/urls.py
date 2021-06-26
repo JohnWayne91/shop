@@ -10,7 +10,8 @@ urlpatterns = [
     path('remove-from-cart/<str:ct_model>/<str:slug>/', DeleteFromCartView.as_view(), name='delete_from_cart'),
     path('change-amount/<str:ct_model>/<str:slug>/', ChangeProductAmountView.as_view(), name='change_amount'),
     path('checkout/', CheckoutView.as_view(), name='checkout'),
-    path('make-order/', MakeOrderView.as_view(), name='make_order')
+    path('make-order/', MakeOrderView.as_view(), name='make_order'),
+    path('payed-online-order/', PayedOnlineOrderView.as_view(), name='payed_online')
 
 ]
 
