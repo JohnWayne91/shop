@@ -11,7 +11,8 @@ urlpatterns = [
     path('change-amount/<str:slug>/', ChangeProductAmountView.as_view(), name='change_amount'),
     path('checkout/', CheckoutView.as_view(), name='checkout'),
     path('make-order/', MakeOrderView.as_view(), name='make_order'),
-    path('payed-online-order/', PayedOnlineOrderView.as_view(), name='payed_online')
+    path('payed-online-order/', PayedOnlineOrderView.as_view(), name='payed_online'),
+    path('sign-in/', SignInUser.as_view(), name='sign_in')
 
 ]
 

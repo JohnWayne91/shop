@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 from .models import Order
 
@@ -13,3 +14,8 @@ class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ('first_name', 'last_name', 'phone', 'address', 'buying_type', 'order_completion_date', 'comment')
+
+
+class SignInUserForm(AuthenticationForm):
+    username = forms.CharField(label='Login')
+    password = forms.CharField(label='Password')

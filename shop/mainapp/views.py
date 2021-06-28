@@ -4,11 +4,13 @@ from django.db import transaction
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.contrib import messages
+from django.urls import reverse_lazy
 from django.views.generic import DetailView, View
+from django.contrib.auth.views import LoginView
 
 from .models import *
 from .mixins import CartMixin, GetCartProductMixin
-from .forms import OrderForm
+from .forms import OrderForm, SignInUserForm
 from .utils import recalculate_cart
 
 
@@ -159,7 +161,19 @@ class PayedOnlineOrderView(CartMixin, View):
         return JsonResponse({"status": "payed"})
 
 
+class SignInUser(CartMixin, LoginView):
+    form_class = SignInUserForm
+    template_name = 'sign_in.html'
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        categories = Category.objects.all()
+        context['cart'] = self.cart
+        context['categories'] = categories
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('base')
 
 
 
