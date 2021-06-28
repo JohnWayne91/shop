@@ -7,15 +7,15 @@ from django.contrib import messages
 from django.views.generic import DetailView, View
 
 from .models import *
-from .mixins import CategoryDetailMixin, CartMixin, GetCartProductMixin
+from .mixins import CartMixin, GetCartProductMixin
 from .forms import OrderForm
 from .utils import recalculate_cart
 
 
 class BaseView(CartMixin, View):
     def get(self, request, *args, **kwargs):
-        categories = Category.objects.get_categories_for_left_sidebar()
-        products = LatestProducts.objects.get_products_for_main_page('notebook', 'smartphone')
+        categories = Category.objects.all()
+        products = Product.objects.all()
         context = {
             'categories': categories,
             'products': products,
@@ -24,16 +24,7 @@ class BaseView(CartMixin, View):
         return render(request, 'base.html', context)
 
 
-class ProductDetailView(CartMixin, CategoryDetailMixin, DetailView):
-    CT_MODEL_MODEL_CLASS = {
-        'notebook': Notebook,
-        'smartphone': Smartphone
-    }
-
-    def dispatch(self, request, *args, **kwargs):
-        self.model = self.CT_MODEL_MODEL_CLASS[kwargs['ct_model']]
-        self.queryset = self.model._base_manager.all()
-        return super().dispatch(request, *args, **kwargs)
+class ProductDetailView(CartMixin, DetailView):
 
     context_object_name = 'product'
     template_name = 'product_detail.html'
@@ -41,12 +32,11 @@ class ProductDetailView(CartMixin, CategoryDetailMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['ct_model'] = self.model._meta.model_name
         context['cart'] = self.cart
         return context
 
 
-class CategoryDetailView(CartMixin, CategoryDetailMixin, DetailView):
+class CategoryDetailView(CartMixin, DetailView):
     model = Category
     queryset = Category.objects.all()
     context_object_name = 'category'
@@ -98,7 +88,7 @@ class ChangeProductAmountView(CartMixin, GetCartProductMixin, View):
 
 class CartView(CartMixin, View):
     def get(self, request, *args, **kwargs):
-        categories = Category.objects.get_categories_for_left_sidebar()
+        categories = Category.objects.all()
         context = {
             'categories': categories,
             'cart': self.cart
@@ -127,7 +117,7 @@ class CheckoutView(CartMixin, View):
         return render(request, 'checkout.html', context)
 
 
-class MakeOrderView(CartView, View):
+class MakeOrderView(CartMixin, View):
     @transaction.atomic()
     def post(self, request, *args, **kwargs):
         form = OrderForm(request.POST or None)
@@ -150,7 +140,7 @@ class MakeOrderView(CartView, View):
         return HttpResponseRedirect('/checkout/')
 
 
-class PayedOnlineOrderView(CartView, View):
+class PayedOnlineOrderView(CartMixin, View):
     @transaction.atomic()
     def post(self, request, *args, **kwargs):
         customer = Customer.objects.get(user=request.user)
