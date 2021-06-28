@@ -146,7 +146,8 @@ class MakeOrderView(CartView, View):
             new_order.save()
             customer.orders.add(new_order)
             messages.add_message(request, messages.INFO, 'New order created successfully, manager will contact you soon')
-            return JsonResponse({"status": "payed"})
+            return HttpResponseRedirect('/')
+        return HttpResponseRedirect('/checkout/')
 
 
 class PayedOnlineOrderView(CartView, View):
