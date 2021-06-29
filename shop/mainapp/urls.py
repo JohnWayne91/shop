@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib.auth.views import LogoutView
 
 from .views import *
 urlpatterns = [
@@ -12,7 +13,9 @@ urlpatterns = [
     path('checkout/', CheckoutView.as_view(), name='checkout'),
     path('make-order/', MakeOrderView.as_view(), name='make_order'),
     path('payed-online-order/', PayedOnlineOrderView.as_view(), name='payed_online'),
-    path('sign-in/', SignInUser.as_view(), name='sign_in')
+    path('sign-in/', SignInUser.as_view(), name='sign_in'),
+    path('sign-out/', LogoutView.as_view(next_page='/sign-in/'), name='sign_out'),
+    path('sign-up/', RegisterUser.as_view(), name='sign_up')
 
 ]
 

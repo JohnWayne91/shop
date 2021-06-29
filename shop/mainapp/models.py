@@ -73,18 +73,6 @@ class Cart(models.Model):
     def __str__(self):
         return str(self.id)
 
-    # def save(self, *args, **kwargs):
-    #     try:
-    #         cart_data = self.products.aggregate(models.Sum('total_price'), models.Count('id'))
-    #         if cart_data.get('total_price__sum'):
-    #             self.total_price = cart_data['total_price__sum']
-    #         else:
-    #             self.total_price = 0
-    #         self.products_amount = cart_data['id__count']
-    #     except:
-    #         pass
-    #     super().save(*args, **kwargs)
-
 
 class Customer(models.Model):
     user = models.ForeignKey(User, verbose_name='Customer', on_delete=models.CASCADE)

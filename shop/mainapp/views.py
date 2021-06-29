@@ -1,16 +1,17 @@
 import stripe
+from django.contrib.auth import login
 
 from django.db import transaction
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.views.generic import DetailView, View
+from django.views.generic import DetailView, View, CreateView
 from django.contrib.auth.views import LoginView
 
 from .models import *
 from .mixins import CartMixin, GetCartProductMixin
-from .forms import OrderForm, SignInUserForm
+from .forms import OrderForm, SignInUserForm, RegisterUserForm
 from .utils import recalculate_cart
 
 
@@ -175,6 +176,27 @@ class SignInUser(CartMixin, LoginView):
     def get_success_url(self):
         return reverse_lazy('base')
 
+
+class RegisterUser(CartMixin, CreateView):
+    form_class = RegisterUserForm
+    template_name = 'sign_up.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        categories = Category.objects.all()
+        context['cart'] = self.cart
+        context['categories'] = categories
+        return context
+
+    def form_valid(self, form):
+        user = form.save()
+        Customer.objects.create(
+            user=user,
+            phone=form.cleaned_data['phone'],
+            address=form.cleaned_data['address']
+        )
+        login(self.request, user)
+        return redirect('base')
 
 
 
