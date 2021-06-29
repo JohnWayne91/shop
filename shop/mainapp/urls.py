@@ -15,7 +15,8 @@ urlpatterns = [
     path('payed-online-order/', PayedOnlineOrderView.as_view(), name='payed_online'),
     path('sign-in/', SignInUser.as_view(), name='sign_in'),
     path('sign-out/', LogoutView.as_view(next_page='/sign-in/'), name='sign_out'),
-    path('sign-up/', RegisterUser.as_view(), name='sign_up')
+    path('sign-up/', RegisterUser.as_view(), name='sign_up'),
+    path('profile/', ProfileView.as_view(), name='profile')
 
 ]
 

@@ -56,7 +56,7 @@
                 <li class="nav-item">
                   {% if request.user.is_authenticated %}
                   <span class="navbar text text-light">Hi,<span class="badge badge-danger">
-                    <a style="text-decoration: none; font-size:14px; color:white;" href="#">{{ request.user.username }}</a> | <a style="color:white;" href="{% url 'sign_out' %}">Sign out</a></span></span>
+                    <a style="text-decoration: none; font-size:14px; color:white;" href="{% url 'profile' %}">{{ request.user.username }}</a> | <a style="color:white;" href="{% url 'sign_out' %}">Sign out</a></span></span>
                   {% endif %}
                 </li>
             </ul>

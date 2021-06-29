@@ -28,7 +28,7 @@ class BaseView(CartMixin, View):
 
 
 class ProductDetailView(CartMixin, DetailView):
-
+    model = Product
     context_object_name = 'product'
     template_name = 'product_detail.html'
     slug_url_kwarg = 'slug'
@@ -197,6 +197,14 @@ class RegisterUser(CartMixin, CreateView):
         )
         login(self.request, user)
         return redirect('base')
+
+
+class ProfileView(CartMixin, View):
+    def get(self, request, *args, **kwargs):
+        customer = Customer.objects.get(user=request.user)
+        orders = Order.objects.filter(customer=customer).order_by('-order_creation_date')
+        categories = Category.objects.all()
+        return render(request, 'profile.html', {'orders': orders, 'cart': self.cart, 'categories': categories})
 
 
 

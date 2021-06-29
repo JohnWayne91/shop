@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3 class="mt-3 mb-3">Your orders:</h3>
+{% if not orders.count %}
+<div class="col-md-12" style="margin-top: 300px; margin-bottom: 300px;">
+  <h3>You don't have orders yet. </h3><a href="{% url 'base' %}">Start shopping</a>
+</div>
+{% else %}
+<div class="col-md-12" style="margin-top: 50px; margin-bottom: 250px;">
+    <table class="table">
+        <thead>
+            <th scope="col">Id</th>
+            <th scope="col">Date</th>
+            <th scope="col">Status</th>
+            <th scope="col">Product</th>
+            <th scope="col">Total price</th>
+            <th scope="col">Additionally</th>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+        <tr>
+            <th scope="row">{{ order.id }}</th>
+            <td>{{ order.order_creation_date }}</td>
+            <td>{{ order.get_status_display }}</td>
+            <td>
+                <ul>
+                    {% for product in order.cart.products.all %}
+
+                    <li>{{ product.product.title }} x {{ product.amount }}</li>
+
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>{{ order.cart.total_price }} USD.</td>
+            <td>
+                <button class="btn btn-info" data-toggle="modal" data-target="#exampleModal-{{ order.id }}">Additionally</button>
+                <div class="modal fade" id="exampleModal-{{ order.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Order details</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <h4 class="text-center">Products</h4>
+                                <table class="table">
+                                    <thead>
+                                      <tr>
+                                        <th scope="col">Product name</th>
+                                        <th scope="col">Image</th>
+                                        <th scope="col">Price</th>
+                                        <th scope="col">Amount</th>
+                                        <th scope="col">Total price</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {% for cart_product in order.cart.products.all %}
+                                      <tr>
+                                          <th scope="row">{{ cart_product.product.title }}</th>
+                                          <td class="w-25"><img src="{{ cart_product.product.image.url }}" class="img-fluid"></td>
+                                          <td><strong>{{ cart_product.product.price }} USD.</strong></td>
+                                          <td>{{ cart_product.amount }}</td>
+                                          <td>{{ cart_product.total_price }} USD</td>
+                                      </tr>
+                                      {% endfor %}
+                                      <tr>
+                                          <td colspan="2"></td>
+                                          <td>Total: </td>
+                                          <td>{{ order.cart.products_amount }}</td>
+                                          <td><strong>{{ order.cart.total_price }}</strong>USD</td>
+                                      </tr>
+                                    </tbody>
+                                </table>
+                                <hr>
+                                <h4 class="text-center">Additional info:</h4>
+                                <p>First name: <strong>{{ order.first_name }}</strong></p>
+                                <p>Last name: <strong>{{ order.last_name }}</strong></p>
+                                <p>Phone: <strong>{{ order.customer.phone }}</strong></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

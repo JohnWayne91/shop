@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3 class="text-center mt-5 mb-5">Your cart {% if not cart.products.count %} empty {% endif %}</h3>
+<h3 class="text-center mt-5 mb-5">Your cart {% if not cart.products.count %} is empty {% endif %}</h3>
 {% if cart.products.count %}
 <table class="table">
     <thead>
