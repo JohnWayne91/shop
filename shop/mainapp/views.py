@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.views.generic import DetailView, View, CreateView
+from django.views.generic import DetailView, View, CreateView, ListView
 from django.contrib.auth.views import LoginView
 
 from .models import *
@@ -35,20 +35,24 @@ class ProductDetailView(CartMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        categories = Category.objects.all()
+        context['categories'] = categories
         context['cart'] = self.cart
         return context
 
 
-class CategoryDetailView(CartMixin, DetailView):
+class CategoryDetailView(CartMixin, ListView):
     model = Category
     queryset = Category.objects.all()
-    context_object_name = 'category'
+    context_object_name = 'categories'
     template_name = 'category_detail.html'
     slug_url_kwarg = 'slug'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        category_products = Product.objects.filter(category__slug=self.kwargs['slug'])
         context['cart'] = self.cart
+        context['category_products'] = category_products
         return context
 
 
