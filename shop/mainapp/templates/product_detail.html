@@ -8,13 +8,14 @@
         </ol>
     </nav>
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <img src="{{ product.image.url }}" class="img-fluid">
         </div>
         <div class="col-md-8">
             <h3>{{ product.title }}</h3>
             <p>Price: {{ product.price }} USD</p>
-            <p>Description: {{ product.description }}</p>
+            <strong><p>Description:</p></strong>
+            {{ product.description|linebreaks }}
             <hr>
             <a href="{% url 'add_to_cart' slug=product.slug %}"><button class="btn btn-danger">Add to cart</button></a>
         </div>
