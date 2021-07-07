@@ -18,8 +18,15 @@
             <hr>
             <a href="{% url 'add_to_cart' slug=product.slug %}"><button class="btn btn-danger">Add to cart</button></a>
         </div>
-
-
     </div>
+    <p class="mt-4">Specifications:</p>
+    <table class="table">
+        {% for spec_name, spec_value in product.specifications.items %}
+        <tr>
+            <td>{{ spec_name }}:</td>
+            <td>{{ spec_value }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 
 {% endblock content %}

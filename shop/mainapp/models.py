@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import JSONField
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
@@ -31,6 +32,7 @@ class Product(models.Model):
     image = models.ImageField(verbose_name='image', null=True)
     description = models.TextField(verbose_name='description', null=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='price')
+    specifications = JSONField(verbose_name='Specifications', null=True)
 
     def __str__(self):
         return self.title

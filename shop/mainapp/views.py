@@ -1,6 +1,6 @@
 import stripe
-from django.contrib.auth import login
 
+from django.contrib.auth import login
 from django.db import transaction
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
@@ -51,13 +51,15 @@ class CategoryDetailView(CartMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         category_products = Product.objects.filter(category__slug=self.kwargs['slug'])
-        context['car t'] = self.cart
+        context['cart'] = self.cart
         context['category_products'] = category_products
         return context
 
 
 class AddToCartView(CartMixin, View):
     def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect('/sign-in/')
         product_slug = kwargs.get('slug')
         product = Product.objects.get(slug=product_slug)
         cart_product, created = CartProduct.objects.get_or_create(
