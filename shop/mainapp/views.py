@@ -6,28 +6,32 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.views.generic import DetailView, View, CreateView, ListView
+from django.views.generic import DetailView, View, CreateView, ListView, TemplateView
 from django.contrib.auth.views import LoginView
 
 from .models import *
-from .mixins import CartMixin, GetCartProductMixin
+from .mixins import CartMixin, GetCartProductMixin, DataMixin
 from .forms import OrderForm, SignInUserForm, RegisterUserForm
 from .utils import recalculate_cart
 
 
-class BaseView(CartMixin, View):
-    def get(self, request, *args, **kwargs):
-        categories = Category.objects.all()
-        products = Product.objects.all()
-        context = {
-            'categories': categories,
-            'products': products,
-            'cart': self.cart
-        }
-        return render(request, 'base.html', context)
+class BaseView(DataMixin, ListView):
+    model = Product
+    context_object_name = 'products'
+    template_name = 'base.html'
+    slug_url_kwarg = 'slug'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_context = self.get_context(title='Home')
+        all_context = context | user_context
+        return all_context
+
+    def get_queryset(self):
+        return Product.objects.all().order_by('-id')
 
 
-class ProductDetailView(CartMixin, DetailView):
+class ProductDetailView(DataMixin, DetailView):
     model = Product
     context_object_name = 'product'
     template_name = 'product_detail.html'
@@ -35,13 +39,12 @@ class ProductDetailView(CartMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        categories = Category.objects.all()
-        context['categories'] = categories
-        context['cart'] = self.cart
-        return context
+        user_context = self.get_context(title='Product detail')
+        all_context = context | user_context
+        return all_context
 
 
-class CategoryDetailView(CartMixin, ListView):
+class CategoryDetailView(DataMixin, ListView):
     model = Category
     queryset = Category.objects.all()
     context_object_name = 'categories'
@@ -50,10 +53,12 @@ class CategoryDetailView(CartMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        category_products = Product.objects.filter(category__slug=self.kwargs['slug'])
-        context['cart'] = self.cart
-        context['category_products'] = category_products
-        return context
+        user_context = self.get_context(
+            title='Category - ' + str(self.kwargs['slug']),
+            category_products=Product.objects.filter(category__slug=self.kwargs['slug']).order_by('-id')
+        )
+        all_context = context | user_context
+        return all_context
 
 
 class AddToCartView(CartMixin, View):
@@ -68,7 +73,7 @@ class AddToCartView(CartMixin, View):
         if created:
             self.cart.products.add(cart_product)
         recalculate_cart(self.cart)
-        messages.add_message(request, messages.INFO, 'Product added successfully')
+        messages.add_message(request, messages.INFO, 'Product added to cart successfully')
         return HttpResponseRedirect('/cart/')
 
 
@@ -99,7 +104,8 @@ class CartView(CartMixin, View):
         categories = Category.objects.all()
         context = {
             'categories': categories,
-            'cart': self.cart
+            'cart': self.cart,
+            'title': 'Cart'
         }
         return render(request, 'cart.html', context)
 
@@ -168,31 +174,29 @@ class PayedOnlineOrderView(CartMixin, View):
         return JsonResponse({"status": "payed"})
 
 
-class SignInUser(CartMixin, LoginView):
+class SignInUser(DataMixin, LoginView):
     form_class = SignInUserForm
     template_name = 'sign_in.html'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        categories = Category.objects.all()
-        context['cart'] = self.cart
-        context['categories'] = categories
-        return context
+        user_context = self.get_context(title='Sign_in')
+        all_context = context | user_context
+        return all_context
 
     def get_success_url(self):
         return reverse_lazy('base')
 
 
-class RegisterUser(CartMixin, CreateView):
+class RegisterUser(DataMixin, CreateView):
     form_class = RegisterUserForm
     template_name = 'sign_up.html'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        categories = Category.objects.all()
-        context['cart'] = self.cart
-        context['categories'] = categories
-        return context
+        user_context = self.get_context(title='Sign_up')
+        all_context = context | user_context
+        return all_context
 
     def form_valid(self, form):
         user = form.save()
@@ -205,12 +209,20 @@ class RegisterUser(CartMixin, CreateView):
         return redirect('base')
 
 
-class ProfileView(CartMixin, View):
-    def get(self, request, *args, **kwargs):
-        customer = Customer.objects.get(user=request.user)
-        orders = Order.objects.filter(customer=customer).order_by('-order_creation_date')
-        categories = Category.objects.all()
-        return render(request, 'profile.html', {'orders': orders, 'cart': self.cart, 'categories': categories})
+class ProfileView(DataMixin, TemplateView):
+    template_name = 'profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        customer = Customer.objects.get(user=self.request.user)
+        user_context = self.get_context(
+            title='Profile',
+            orders=Order.objects.filter(customer=customer).order_by('-order_creation_date')
+        )
+        all_context = context | user_context
+        return all_context
+
+
 
 
 

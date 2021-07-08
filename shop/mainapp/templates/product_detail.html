@@ -8,23 +8,23 @@
         </ol>
     </nav>
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-7">
             <img src="{{ product.image.url }}" class="img-fluid">
         </div>
         <div class="col-md-8">
             <h3>{{ product.title }}</h3>
             <p>Price: {{ product.price }} USD</p>
             <strong><p>Description:</p></strong>
-            {{ product.description|linebreaks }}
+            <div>{{ product.description|linebreaks }}</div>
             <hr>
-            <a href="{% url 'add_to_cart' slug=product.slug %}"><button class="btn btn-danger">Add to cart</button></a>
+            <a href="{% url 'add_to_cart' slug=product.slug %}"><button class="btn btn-danger btn-lg">Add to cart</button></a>
         </div>
     </div>
-    <p class="mt-4">Specifications:</p>
+    <strong><p class="mt-4">Specifications:</p></strong>
     <table class="table">
         {% for spec_name, spec_value in product.specifications.items %}
         <tr>
-            <td>{{ spec_name }}:</td>
+            <th>{{ spec_name }}:</th>
             <td>{{ spec_value }}</td>
         </tr>
         {% endfor %}
