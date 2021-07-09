@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'mainapp.apps.MainappConfig',
     'crispy_forms',
     'rest_framework',
+    'captcha'
 ]
 
 MIDDLEWARE = [
