@@ -131,27 +131,20 @@ class CheckoutView(CartMixin, View):
         return render(request, 'checkout.html', context)
 
 
-class MakeOrderView(CartMixin, View):
-    @transaction.atomic()
-    def post(self, request, *args, **kwargs):
-        form = OrderForm(request.POST or None)
-        customer = Customer.objects.get(user=request.user)
-        if form.is_valid():
-            new_order = form.save(commit=False)
-            new_order.customer = customer
-            new_order.first_name = form.cleaned_data['first_name']
-            new_order.last_name = form.cleaned_data['last_name']
-            new_order.phone = form.cleaned_data['phone']
-            new_order.address = form.cleaned_data['address']
-            new_order.buying_type = form.cleaned_data['buying_type']
-            self.cart.in_order = True
-            self.cart.save()
-            new_order.cart = self.cart
-            new_order.save()
-            customer.orders.add(new_order)
-            messages.add_message(request, messages.INFO, 'New order created successfully, manager will contact you soon')
-            return HttpResponseRedirect('/')
-        return HttpResponseRedirect('/checkout/')
+class MakeOrderView(CartMixin, CreateView):
+    form_class = OrderForm
+
+    def form_valid(self, form):
+        new_order = form.save(commit=False)
+        customer = Customer.objects.get(user=self.request.user)
+        self.cart.in_order = True
+        self.cart.save()
+        new_order.customer = customer
+        new_order.cart = self.cart
+        new_order.save()
+        customer.orders.add(new_order)
+        messages.add_message(self.request, messages.INFO, 'New order created successfully, manager will contact you soon')
+        return HttpResponseRedirect('/')
 
 
 class PayedOnlineOrderView(CartMixin, View):
