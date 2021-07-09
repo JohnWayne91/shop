@@ -45,20 +45,20 @@ class ProductDetailView(DataMixin, DetailView):
 
 
 class CategoryDetailView(DataMixin, ListView):
-    model = Category
-    queryset = Category.objects.all()
-    context_object_name = 'categories'
+    model = Product
+    queryset = Product.objects.all()
+    context_object_name = 'category_products'
     template_name = 'category_detail.html'
     slug_url_kwarg = 'slug'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user_context = self.get_context(
-            title='Category - ' + str(self.kwargs['slug']),
-            category_products=Product.objects.filter(category__slug=self.kwargs['slug']).order_by('-id')
-        )
+        user_context = self.get_context(title='Category - ' + str(self.kwargs['slug']))
         all_context = context | user_context
         return all_context
+
+    def get_queryset(self):
+        return Product.objects.filter(category__slug=self.kwargs['slug']).order_by('-id')
 
 
 class AddToCartView(CartMixin, View):
