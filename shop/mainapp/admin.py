@@ -1,11 +1,6 @@
-from django.forms import ModelChoiceField, ModelForm
 from django.contrib import admin
-from django.utils.html import format_html
-from django.utils.http import urlencode
-from django.utils.safestring import mark_safe
 
 from .models import *
-from .mixins import ImageValidationMixin
 
 
 class OrdersAdmin(admin.ModelAdmin):
