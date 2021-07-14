@@ -46,7 +46,6 @@ class ProductDetailView(DataMixin, DetailView):
 
 class CategoryDetailView(DataMixin, ListView):
     model = Product
-    queryset = Product.objects.all()
     context_object_name = 'category_products'
     template_name = 'category_detail.html'
     slug_url_kwarg = 'slug'

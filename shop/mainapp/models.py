@@ -50,14 +50,14 @@ class Product(models.Model):
 
 class CartProduct(models.Model):
     user = models.ForeignKey('Customer', verbose_name='Customer', on_delete=models.CASCADE)
-    cart = models.ForeignKey('Cart', verbose_name='cart product', on_delete=models.CASCADE,
+    cart = models.ForeignKey('Cart', verbose_name='Product in the cart', on_delete=models.CASCADE,
                              related_name='related_products')
     product = models.ForeignKey(Product, verbose_name='Product', on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(default=1)
     total_price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Total_price')
 
     def __str__(self):
-        return f'Product: {self.product.title} (for the cart)'
+        return f'{self.product.title} x {self.amount}'
 
     def save(self, *args, **kwargs):
         self.total_price = self.amount * self.product.price
