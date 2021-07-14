@@ -1,2 +1,12 @@
 .idea/
 venv/
+__pycache__
+__pycache__/
+/__pycache__/
+mainapp/__pycache__/
+shop/__pycache__/settings.cpython-39.pyc
+shop/shop/__pycache__/urls.cpython-39.pyc
+pycache
+/media/
+!/media/.gitkeep
+*/__pycache__/

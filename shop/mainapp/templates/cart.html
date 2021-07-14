@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3 class="text-center mt-5 mb-5">Your cart {% if not cart.products.count %} is empty {% endif %}</h3>
+{% if cart.products.count %}
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Product name</th>
+        <th scope="col">Image</th>
+        <th scope="col">Price</th>
+        <th scope="col">Amount</th>
+        <th scope="col">Total price</th>
+        <th scope="col">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in cart.products.all %}
+        <tr>
+            <th scope="row">{{ item.product.title }}</th>
+            <td class="w-25"><img src="{{ item.product.image.url }}" class="img-fluid"></td>
+            <td>{{ item.product.price }}</td>
+            <td>
+                <form action="{% url 'change_amount' slug=item.product.slug %}" method="POST">
+                    {% csrf_token %}
+                    <input type="number" class="form-control" name='amount' style="width: 70px" min="1" value="{{ item.amount }}">
+                    <br>
+                    <input type="submit" class="btn btn-primary" value="Change amount">
+                </form>
+            </td>
+            <td>{{ item.total_price }} usd.</td>
+            <td><a href="{% url 'delete_from_cart' slug=item.product.slug %}"><button class="btn btn-danger">Delete</button></a></td>
+        </tr>
+    {% endfor %}
+        <tr>
+            <td colspan="2"></td>
+            <td>Total:</td>
+            <td>{{ cart.products_amount }}</td>
+            <td><strong>{{ cart.total_price }} USD</strong></td>
+            <td><a href="{% url 'checkout' %}"><button class="btn btn-primary">Go to order</button></a></td>
+        </tr>
+    </tbody>
+</table>
+{% endif %}
+{% endblock content %}
