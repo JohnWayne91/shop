@@ -46,7 +46,7 @@ class GetCartProductMixin(View):
 
 
 class DataMixin(CartMixin):
-    paginate_by = 3
+    paginate_by = 6
 
     def get_context(self, **kwargs):
         context = kwargs
